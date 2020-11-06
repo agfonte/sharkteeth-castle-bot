@@ -1,10 +1,10 @@
-from services import DatabaseService, TelegramService, CwApiService, AuthService, Permissions
+from SharkTeethCastleBot.services import DatabaseService, TelegramService, CwApiService, AuthService, Permissions
 import logging
 from datetime import datetime, timezone
-from utils.utils import correspondent_utc
-from keyboard.botmarkup import gen_bot_settings, gen_main_keyboard, gen_hero_markup, gen_whois_markup
-from utils.constants import emojis, levels, chatWarsBotId
-from utils.utils import emoji_to_class, quality_to_letter
+from SharkTeethCastleBot.utils.utils import correspondent_utc
+from SharkTeethCastleBot.keyboard.botmarkup import gen_bot_settings, gen_main_keyboard, gen_hero_markup, gen_whois_markup
+from SharkTeethCastleBot.utils.constants import emojis, levels, chatWarsBotId
+from SharkTeethCastleBot.utils.utils import emoji_to_class, quality_to_letter
 
 
 logging.basicConfig(level=logging.INFO)
@@ -71,6 +71,7 @@ class HeroService:
     def me(self, userid):
         hero = self.hero
         h = hero.find_one(userid)
+        #logger.info(h)
         if h:
             in_castle_since = h["castle_since"].ctime()
             last_update = h["last_update"].ctime()

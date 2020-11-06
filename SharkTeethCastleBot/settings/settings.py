@@ -1,5 +1,5 @@
-from services import DatabaseService, LanguageService, TelegramService
-from keyboard.botmarkup import gen_bot_settings, gen_main_soldier_keyboard, gen_lang_settings, gen_main_keyboard
+from SharkTeethCastleBot.services import DatabaseService, LanguageService, TelegramService
+from SharkTeethCastleBot.keyboard.botmarkup import gen_bot_settings, gen_main_soldier_keyboard, gen_lang_settings, gen_main_keyboard
 
 
 class Settings:

@@ -1,4 +1,4 @@
-from services import DatabaseService, TelegramService, AuthService
+from SharkTeethCastleBot.services import DatabaseService, TelegramService, AuthService
 import logging
 
 logging.basicConfig(level=logging.INFO)

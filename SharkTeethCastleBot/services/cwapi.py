@@ -1,5 +1,5 @@
-import os, threading, pika, json, logging, time, services
-from settings import Settings
+import os, threading, pika, json, logging, time, SharkTeethCastleBot.services
+from SharkTeethCastleBot.settings import Settings
 from pika.exceptions import ChannelWrongStateError
 
 logger = logging.getLogger("[cwapi_service]")
@@ -20,8 +20,8 @@ class CwApiService:
         else:
             CwApiService.__instance = self
             self.settings = Settings.getInstance()
-            self.db = services.DatabaseService.getInstance()
-            self.actions = services.ActionService.getInstance()
+            self.db = SharkTeethCastleBot.services.DatabaseService.getInstance()
+            self.actions = SharkTeethCastleBot.services.ActionService.getInstance()
             self.cwuser = self.settings.cwuser
             self.cwpass = self.settings.cwpass
             self.url = "amqps://"+ self.cwuser +":"+ self.cwpass +"@api.chatwars.me:5673/"

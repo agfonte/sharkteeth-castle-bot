@@ -1,9 +1,9 @@
-from utils.constants import commands, buttons
+from SharkTeethCastleBot.utils.constants import commands, buttons
 import re
-from services import LanguageService
+from SharkTeethCastleBot.services import LanguageService
 
 def parseCodeAuth(txt):
-    x = re.match("Code [0-9][0-9][0-9][0-9][0-9][0-9] to authorize Inglorious Overlord", txt)
+    x = re.match("Code [0-9][0-9][0-9][0-9][0-9][0-9] to authorize", txt)
     if x:
         code =  re.search("[0-9][0-9][0-9][0-9][0-9][0-9]", txt)
         print(code.group())

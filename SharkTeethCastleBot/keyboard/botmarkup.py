@@ -1,12 +1,14 @@
 from telebot.types import InlineKeyboardMarkup,  InlineKeyboardButton, ReplyKeyboardMarkup, KeyboardButton
-from utils.constants import buttons
-import services 
+from SharkTeethCastleBot.utils.constants import buttons
+
 
 def lang_index(userid):
+    import SharkTeethCastleBot.services as services
     lang = services.LanguageService.getInstance()
     return 0 if lang.get_lang(userid) == "EN" else 1
 
 def gen_main_keyboard(userid):
+    import SharkTeethCastleBot.services as services
     auth = services.AuthService.getInstance().get_role(userid)
     print("Keyboard " + auth[0])
     if auth == None:
@@ -24,6 +26,7 @@ def gen_main_keyboard(userid):
 
 
 def gen_hero_markup(userid):
+    import SharkTeethCastleBot.services as services
     hero = services.DatabaseService.getInstance().heros.find_one({"_id": userid}, {"squad" : 1})
     markup = InlineKeyboardMarkup()
     
@@ -39,6 +42,7 @@ def gen_hero_markup(userid):
     return markup
 
 def gen_whois_markup(userid, commanderid):
+    import SharkTeethCastleBot.services as services
     hero = services.DatabaseService.getInstance().heros.find_one({"_id": userid}, {"squad" : 1})
     markup = InlineKeyboardMarkup()
     markup.row_width = 2
@@ -162,6 +166,7 @@ def  gen_add_to_squad(userid, list_squad):
 
 
 def gen_confirm_markup(userid):
+    import SharkTeethCastleBot.services as services
     lang = services.LanguageService.getInstance()
     yes = lang.get_value(userid, "confirm_yes")
     no = lang.get_value(userid, "confirm_no")
