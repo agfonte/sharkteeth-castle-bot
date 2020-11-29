@@ -16,8 +16,8 @@ class ActionService:
             raise Exception("This class is a singleton!")
         else:
             ActionService.__instance = self
-            self.db = DatabaseService.getInstance()
-            self.bot = TelegramService.getInstance()
+            self.db = DatabaseService.get_instance()
+            self.bot = TelegramService.get_instance()
             self.OK = "Ok"
             
         

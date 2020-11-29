@@ -18,7 +18,7 @@ class AuthService:
             raise Exception("This class is a singleton!")
         else:
             AuthService.__instance = self
-            self.db = DatabaseService.getInstance()
+            self.db = DatabaseService.get_instance()
             self.permissions = self.db.permissions
             
     def get_role(self, userid):
@@ -38,12 +38,12 @@ class AuthService:
             return (Permissions.NO_AUTH, None)
         
     def can_create_squad(self, userId):
-        permissions = DatabaseService.getInstance().permissions
+        permissions = DatabaseService.get_instance().permissions
         commander = permissions.find_one({"_id": Permissions.COMMANDER}, {"list"})["list"]
         return userId in commander
     
     def can_add_to_squad(self, comm, squadId):
-        permissions = DatabaseService.getInstance().permissions
+        permissions = DatabaseService.get_instance().permissions
         commanders = permissions.find({
             "_id": {
                 "$in": [Permissions.COMMANDER, Permissions.SQUAD_LEADER]} 
@@ -60,7 +60,7 @@ class AuthService:
         heros = self.db.heros
         permissions = self.db.permissions
         h = heros.find_one({"_id":userid})
-        ts = TelegramService.getInstance()
+        ts = TelegramService.get_instance()
         if h:
             commander = permissions.find({
             "_id": {

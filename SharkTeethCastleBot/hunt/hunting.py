@@ -15,7 +15,7 @@ class HuntingManager:
     def __init__(self, bot, lang):
         super().__init__()
         self.bot = bot
-        self.db = DatabaseService.getInstance()
+        self.db = DatabaseService.get_instance()
         self.lang = lang
   
     def hunt(self, message):

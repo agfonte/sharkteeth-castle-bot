@@ -1,27 +1,27 @@
-import telebot, logging, os, threading, multiprocessing
-from multiprocessing import Pool,Process
-from datetime import datetime, timedelta
-from SharkTeethCastleBot.services import LanguageService, TelegramService, SquadService, HeroService, SchedulingService
-from SharkTeethCastleBot.utils.constants import commands as cmd, chatWarsBotId, private_commands
-from threading import Thread
-from SharkTeethCastleBot.utils.utils import isCommand,  parseCodeAuth, all_buttons, is_battle_report, check_if_pledge
+import logging
+import os
+import telebot
+
 from SharkTeethCastleBot.keyboard.botmarkup import gen_main_keyboard
 from SharkTeethCastleBot.keyboard.buttons_actions import resolve_button_action
 from SharkTeethCastleBot.keyboard.resolve_calbacks import resolve_callbacks
 from SharkTeethCastleBot.services import CwApiService
-from SharkTeethCastleBot.settings import Settings
-# LOGGIN
+from SharkTeethCastleBot.services import TelegramService, SquadService, HeroService, SchedulingService
+from SharkTeethCastleBot.utils.constants import commands as cmd, private_commands
+from SharkTeethCastleBot.utils.utils import is_command, parse_code_auth, all_buttons, is_battle_report, check_if_pledge
+
+# LOGGING
 logging.basicConfig(level=logging.WARNING)
 logger = logging.getLogger("[sharkteeth_core]")
 logging.getLogger("pika").propagate = False
-#BOT CORE
-bot = TelegramService.getInstance().setBot(telebot.TeleBot(os.environ["HUNTER_TOKEN"], parse_mode="HTML", threaded=False))
+# BOT CORE
+bot = TelegramService.get_instance().set_bot(
+    telebot.TeleBot(os.environ["HUNTER_TOKEN"], parse_mode="HTML", threaded=False))
 schedule = SchedulingService.getInstance()
-
 
 logger.info('Starting app...')
 
-#DEBUG
+# DEBUG
 debug = "false"
 try:
     debug = os.environ["DEBUG"]
@@ -42,8 +42,8 @@ def start(message):
     if hero:
         bot.send_message(message.from_user.id, "welcome", reply_markup=gen_main_keyboard(message.from_user.id))
     else:
-        bot.send_message(message.from_user.id, "welcome_no_profile", reply_markup=gen_main_keyboard(message.from_user.id))
-        
+        bot.send_message(message.from_user.id, "welcome_no_profile",
+                         reply_markup=gen_main_keyboard(message.from_user.id))
 
 
 @bot.bot.message_handler(content_types=[
@@ -51,35 +51,33 @@ def start(message):
 ])
 def new_user(message):
     userid = message.from_user.id
-    isBot = message.from_user.is_bot
-    if not isBot and not SquadService.getInstance().can_enter(userid, message.chat.id):
+    is_bot = message.from_user.is_bot
+    if not is_bot and not SquadService.getInstance().can_enter(userid, message.chat.id):
         if bot.bot.kick_chat_member(message.chat.id, userid):
             username = message.from_user.username
             name = message.from_user.first_name
             squad = SquadService.getInstance().squad_info(message.chat.id)
-            bot.send_message(message.chat.id, "enter_squad_forbidden", params=(name, username, userid, squad["name"], squad["short"]),)
-    elif not isBot:
+            bot.send_message(message.chat.id, "enter_squad_forbidden",
+                             params=(name, username, userid, squad["name"], squad["short"]), )
+    elif not is_bot:
         bot.bot.reply_to(message, "Welcome pal")
 
-@bot.bot.message_handler(commands=cmd.keys())
+
+@bot.bot.message_handler(commands=[i for i in cmd.keys()] + [i for i in private_commands.keys()])
 def commands(message):
-    logger.log(f"Se recibio {message}")
     if message.chat.type == "private" and message.from_user.username is None:
         return bot.reply_to(message, "no_username")
-    
     if message.content_type == "text":
-        comm = isCommand(message.text)
+        comm = is_command(message)
         if message.chat.type == "private":
             if comm in private_commands.values():
-                if comm == "/start":    
-                    bot.send_message(message.from_user.id, "welcome", reply_markup=gen_main_keyboard(message.from_user.id))
+                if comm == "/start":
+                    bot.send_message(message.from_user.id, "welcome",
+                                     reply_markup=gen_main_keyboard(message.from_user.id))
                 if comm == "/first_steps":
                     bot.send_message(message.from_user.id, "first_steps", reply_markup=gen_main_keyboard(message.from_user.id))
                 if comm == "/no_pledge":
                     HeroService.getInstance().no_pledge(message)
-                if comm == "/auth":
-                    bot.send_message(message.from_user.id, "auth_request")
-                    CwApiService.getInstance().auth(message.from_user.id)
                 if comm == "/gearAuth":
                     bot.send_message(message.from_user.id, "auth_request")
                     CwApiService.getInstance().authRequestGearInfo(message.from_user.id)
@@ -100,7 +98,7 @@ def commands(message):
                     replied_usrid = replied_msg.from_user.id
                     replied_usrname = replied_msg.from_user.username
                     bot.bot.kick_chat_member(message.chat.id, replied_usrid)
-                    bot.send_message(message.chat.id, "user_kicked", params=(replied_usrname), userId=message.from_user.id)
+                    bot.send_message(message.chat.id, "user_kicked", params=(replied_usrname), user_id=message.from_user.id)
                 if comm == "/auth":
                     bot.send_message(message.from_user.id, "auth_request")
                     CwApiService.getInstance().auth(message.from_user.id)
@@ -116,43 +114,40 @@ def commands(message):
                     HeroService.getInstance().whois(replied_usrid, userid, message.chat.id)
                 if comm == "/add":
                     SquadService.getInstance().add_to_squad_by_join(message)
-                
-                          
+
 
 @bot.bot.message_handler(func=lambda m: True)
 def update(message):
-    logger.info(f"{message}")
-    
+    print(message)
     cwapi = CwApiService.getInstance()
-    code = parseCodeAuth(message.text)
+    code = parse_code_auth(message.text)
     if code:
-        return proccess_auth_code(message, code)
-        
+        return process_auth_code(message, code)
+
     if is_battle_report(message.text):
-        return HeroService.getInstance().proccess_battle_report(message.from_user.id, message.text, message.forward_date)
+        return HeroService.getInstance().proccess_battle_report(message.from_user.id, message.text,
+                                                                message.forward_date)
     pledge = check_if_pledge(message.text)
     if pledge:
         return HeroService.getInstance().pledge(message, pledge)
-    
+
     if message.chat.type == "private" and message.from_user.username is None:
         return bot.reply_to(message, "no_username")
-    
-    
+
     btns = all_buttons(message.from_user.id)
     if message.chat.type == "private" and message.text in btns.values():
-        
         btn = message.text
         return resolve_button_action(btn, btns, message.from_user.id, message.from_user.username)
-        
-    #if message.forward_from is not None and message.forward_from.id == chatWarsBotId:
-     #   if is_battle_report(message.text):
-      #      return
-       # if hunting.parse_mob(message):
-        #    return
-        #if hunting.parse_preparing(message):
-         #   return
-        #if hunting.parse_too_late(message):
-         #   return
+
+    # if message.forward_from is not None and message.forward_from.id == chatWarsBotId:
+    #   if is_battle_report(message.text):
+    #      return
+    # if hunting.parse_mob(message):
+    #    return
+    # if hunting.parse_preparing(message):
+    #   return
+    # if hunting.parse_too_late(message):
+    #   return
 
 
 @bot.bot.callback_query_handler(func=lambda call: True)
@@ -160,11 +155,11 @@ def callbacks(call):
     resolve_callbacks(call)
 
 
-def proccess_auth_code(message, code):
+def process_auth_code(message, code):
     cwapi = CwApiService.getInstance()
     if " - view currently equipped gear" not in message.text:
         usrid = message.chat.id
-        if cwapi.grantToken(message.from_user.id, code) == "Ok":            
+        if cwapi.grantToken(message.from_user.id, code) == "Ok":
             params = None
             if message.chat.type == "private":
                 usrid = message.from_user.id
@@ -175,7 +170,7 @@ def proccess_auth_code(message, code):
                 bot.send_message(usrid, "auth_completed_public", params=params)
             HeroService.getInstance().authed_hero(usrid, message.from_user.username)
         else:
-           bot.send_message(usrid, "try_later")
+            bot.send_message(usrid, "try_later")
 
     if " - view currently equipped gear" in message.text:
         usrid = message.chat.id
@@ -183,17 +178,17 @@ def proccess_auth_code(message, code):
             params = None
             if message.chat.type == "private":
                 usrid = message.from_user.id
-                bot.send_message(usrid, "auth_completed_gear")   
+                bot.send_message(usrid, "auth_completed_gear")
             else:
                 params = (message.from_user.username)
-                TelegramService.getInstance().send_message(usrid, "auth_completed_gear_public", params=params)   
+                TelegramService.get_instance().send_message(usrid, "auth_completed_gear_public", params=params)
             HeroService.getInstance().authed_gear(usrid, message.from_user.username)
         else:
             bot.send_message(usrid, "try_later")
 
 
 def bot_main():
-    logger.info("Polling")
+    # logger.info("Polling")
     bot.bot.infinity_polling()
     # logger.info("Polling")
     # #bot.bot.infinity_polling(True)
@@ -201,12 +196,8 @@ def bot_main():
     # bot_thread.start()
     # #schedule.start()
     # print(threading.currentThread().getName())
-    #bot.bot.polling()
-    
+    # bot.bot.polling()
 
 
 if __name__ == '__main__':
     bot_main()
-    
-
-

@@ -27,7 +27,7 @@ def gen_main_keyboard(userid):
 
 def gen_hero_markup(userid):
     import SharkTeethCastleBot.services as services
-    hero = services.DatabaseService.getInstance().heros.find_one({"_id": userid}, {"squad" : 1})
+    hero = services.DatabaseService.get_instance().heros.find_one({"_id": userid}, {"squad" : 1})
     markup = InlineKeyboardMarkup()
     
     markup.row_width = 2
@@ -43,7 +43,7 @@ def gen_hero_markup(userid):
 
 def gen_whois_markup(userid, commanderid):
     import SharkTeethCastleBot.services as services
-    hero = services.DatabaseService.getInstance().heros.find_one({"_id": userid}, {"squad" : 1})
+    hero = services.DatabaseService.get_instance().heros.find_one({"_id": userid}, {"squad" : 1})
     markup = InlineKeyboardMarkup()
     markup.row_width = 2
     markup.add(
@@ -184,7 +184,7 @@ def gen_tops_keyboard(userid):
     defense = KeyboardButton(emojis["shield"])
     exp = KeyboardButton(emojis["fire"])
     reports = KeyboardButton(emojis["star_medal"])
-    back = KeyboardButton(emojis["left_arrow"]+ LanguageService.getInstance().get_value(userid, "back"))
+    back = KeyboardButton(emojis["left_arrow"] + LanguageService.get_instance().get_value(userid, "back"))
     markup.row(atk, defense, exp)
     markup.row(reports, back)
     return markup

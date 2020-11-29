@@ -20,7 +20,7 @@ class CwApiService:
         else:
             CwApiService.__instance = self
             self.settings = Settings.getInstance()
-            self.db = SharkTeethCastleBot.services.DatabaseService.getInstance()
+            self.db = SharkTeethCastleBot.services.DatabaseService.get_instance()
             self.actions = SharkTeethCastleBot.services.ActionService.getInstance()
             self.cwuser = self.settings.cwuser
             self.cwpass = self.settings.cwpass

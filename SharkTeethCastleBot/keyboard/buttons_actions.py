@@ -12,7 +12,7 @@ logger = log.getLogger(__name__)
 
 def resolve_button_action(button, btns, userid, username):
     # logger.info(f'Se recibio este mensaje {button} se compara con {btns["me"]}')
-    DatabaseService.getInstance().heros.find_one_and_update({"_id":userid},{"$set":{"username":username}})
+    DatabaseService.get_instance().heros.find_one_and_update({"_id":userid}, {"$set":{"username":username}})
     if btns["me"] == button:        
         button_me(userid)
     elif btns["settings"] == button:
@@ -35,7 +35,7 @@ def button_me(userid):
         answer, params, markup = HeroService.getInstance().me(userid)
         if answer:
             #logger.info(f'Usando user id {userid} se obtuvo como respuesta {answer}')
-            TelegramService.getInstance().send_message(userid, text=answer, params=params, reply_markup=markup)
+            TelegramService.get_instance().send_message(userid, text=answer, params=params, reply_markup=markup)
     except:
         e = sys.exc_info()[0]
         trace = "".join(traceback.format_tb(sys.exc_info()[2]))
@@ -44,13 +44,13 @@ def button_me(userid):
     
 
 def button_settings(userid):
-    TelegramService.getInstance().send_message(userid, "welcome", reply_markup=gen_bot_settings(userid))
+    TelegramService.get_instance().send_message(userid, "welcome", reply_markup=gen_bot_settings(userid))
     
 def button_back(userid):
-    TelegramService.getInstance().send_message(userid, "welcome", reply_markup=gen_main_keyboard(userid))
+    TelegramService.get_instance().send_message(userid, "welcome", reply_markup=gen_main_keyboard(userid))
     
 def button_tops(userid):
-    TelegramService.getInstance().send_message(userid, "welcome")
+    TelegramService.get_instance().send_message(userid, "welcome")
     
 def button_mysquad(userid):
     StatsService.getInstance().mysquad(userid)

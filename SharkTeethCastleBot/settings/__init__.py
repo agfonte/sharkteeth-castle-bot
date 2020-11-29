@@ -9,11 +9,4 @@ try:
     cwpass = os.environ["CW_PASS"]
     settings.setEnv(cwuser, cwpass)
 except:
-    logging.error("Failed to load env variables", exc_info=True)    
-
-
-
-
-
-        
-        
+    logging.error("Failed to load env variables", exc_info=True)

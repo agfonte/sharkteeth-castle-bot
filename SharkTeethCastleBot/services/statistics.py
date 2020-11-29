@@ -18,8 +18,8 @@ class StatsService:
             raise Exception("This class is a singleton!")
         else:
             StatsService.__instance = self
-            self.db = DatabaseService.getInstance()
-            self.ts = TelegramService.getInstance()
+            self.db = DatabaseService.get_instance()
+            self.ts = TelegramService.get_instance()
 
     def top_hunters(self, user):
         heros = self.db.heros.find().sort("preparing", -1).limit(10)

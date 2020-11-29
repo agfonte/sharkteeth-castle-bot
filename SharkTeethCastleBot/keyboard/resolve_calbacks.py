@@ -6,19 +6,20 @@ import logging
 logger = logging.getLogger("[cwapi_service]")
 logging.basicConfig(level=logging.INFO)
 
+
 def resolve_callbacks(callback):
-    ts = TelegramService.getInstance()
-    db = DatabaseService.getInstance()
+    ts = TelegramService.get_instance()
+    db = DatabaseService.get_instance()
     sett = Settings.getInstance()
     lang = LanguageService.getInstance()
     hero = HeroService.getInstance()
     data = callback.data
     user = callback.from_user.id
-    
+
     username = callback.from_user.username
     if data.startswith("LANG_"):
         return sett.proccess_callback(callback)
-    elif data.startswith("HERO_"):        
+    elif data.startswith("HERO_"):
         res = False
         if data == "HERO_GEAR_UPDATE":
             res = db.update_gear(user)
@@ -44,8 +45,8 @@ def resolve_callbacks(callback):
             response = hero.me(user)
             try:
                 ts.edit_message_text(
-                    chat_id=callback.message.chat.id, 
-                    text=response[0], 
+                    chat_id=callback.message.chat.id,
+                    text=response[0],
                     message_id=callback.message.message_id,
                     params=response[1],
                     reply_markup=response[2])
@@ -62,14 +63,14 @@ def resolve_callbacks(callback):
             markup = gen_whois_markup(userid, callback.message.chat.id)
             try:
                 ts.edit_message_text(
-                    chat_id=callback.message.chat.id, 
-                    text=answer, 
+                    chat_id=callback.message.chat.id,
+                    text=answer,
                     message_id=callback.message.message_id,
                     params=params,
                     reply_markup=markup)
             except:
                 logging.error("ERROR EDITING MESSAGE", exc_info=True)
-            
+
         else:
             return False
     elif data.startswith("ADD_SQUAD_ID_"):
@@ -80,45 +81,45 @@ def resolve_callbacks(callback):
         list_squad = []
         for i in squads:
             short = i["short"]
-            squadid  = i["_id"]
+            squadid = i["_id"]
             list_squad.append((short, squadid))
-            
+
         markup = gen_add_to_squad(userid, list_squad)
-        
+
         ts.edit_message_text(
-                    chat_id=callback.message.chat.id, 
-                    text="select_squad",
-                    params=("@" + hero["username"], ),
-                    message_id=callback.message.message_id,
-                    reply_markup=markup)
+            chat_id=callback.message.chat.id,
+            text="select_squad",
+            params=("@" + hero["username"],),
+            message_id=callback.message.message_id,
+            reply_markup=markup)
     elif data.startswith("SELECT_SQUAD_"):
         ts.bot.answer_callback_query(callback.id, "")
         squadid, userid = data.split("SELECT_SQUAD_")[1].split("_")
         squadid = int(squadid)
         userid = int(userid)
-        hero = db.heros.find_one({"_id": userid})        
+        hero = db.heros.find_one({"_id": userid})
         if hero["squad"]:
             squad = hero["squad"]
             oldsquadid = squad["_id"]
             print(f"Id de chat {oldsquadid}, Id de usuario {userid}")
             try:
-                if(ts.bot.kick_chat_member(squadid, userid)):
+                if ts.bot.kick_chat_member(squadid, userid):
                     ts.send_message(userid, text="you_removed_from_squad", params=(squad["name"], squad["short"],))
             except Exception as e:
                 # USER NO PARTICIPANT CAN HAPPEN
                 logger.error(e)
         squad = db.squad.find_one({"_id": squadid})
-        db.heros.update_one({"_id":userid}, {
-            "$set":{
+        db.heros.update_one({"_id": userid}, {
+            "$set": {
                 "squad": {
                     "name": squad["name"],
-                    "_id" : squad["_id"],
+                    "_id": squad["_id"],
                     "short": squad["short"]
                 }
             }
         })
         link = db.squad.find_one({"_id": squadid}, {"link": 1})["link"]
-        
+
         try:
             ts.bot.unban_chat_member(squad["_id"], userid)
         except Exception as e:
@@ -126,9 +127,9 @@ def resolve_callbacks(callback):
             logger.error(e)
 
         ts.send_message(
-                    callback.message.chat.id, 
-                    text="hero_added_to_squad",
-                    params=("@" + hero["username"], squad["name"], squad["short"]))
+            callback.message.chat.id,
+            text="hero_added_to_squad",
+            params=("@" + hero["username"], squad["name"], squad["short"]))
         ts.send_message(userid, text="you_added_to_squad", params=(squad["name"], link, squad["short"],))
     elif data.startswith("DEL_SQUAD_ID_"):
         userid = int(data.strip("DEL_SQUAD_ID_"))
@@ -136,20 +137,20 @@ def resolve_callbacks(callback):
         squad = hero["squad"]
         if squad:
             ts.bot.kick_chat_member(squad["_id"], userid)
-            db.heros.update_one({"_id":userid}, {
-                "$set":{
+            db.heros.update_one({"_id": userid}, {
+                "$set": {
                     "squad": None
                 }
             })
-            
+
             ts.send_message(
-                        callback.message.chat.id, 
-                        text="hero_removed_from_squad",
-                        params=("@" + hero["username"], squad["name"], squad["short"]))
-        
+                callback.message.chat.id,
+                text="hero_removed_from_squad",
+                params=("@" + hero["username"], squad["name"], squad["short"]))
+
         ts.send_message(userid, text="you_removed_from_squad", params=(squad["name"], squad["short"],))
         ts.bot.answer_callback_query(callback.id, "")
-        
+
     elif data.startswith("QUIT_SQUAD_CONFIRM"):
         ts.bot.answer_callback_query(callback.id, "Ok")
         if data == "QUIT_SQUAD_CONFIRM_YES":
@@ -159,16 +160,16 @@ def resolve_callbacks(callback):
             squad = hero["squad"]
             if squad:
                 ts.bot.kick_chat_member(squad["_id"], userid)
-                db.heros.update_one({"_id":userid}, {
-                    "$set":{
+                db.heros.update_one({"_id": userid}, {
+                    "$set": {
                         "squad": None
                     }
                 })
-                
+
                 ts.send_message(
-                            callback.message.chat.id, 
-                            text="hero_removed_from_squad",
-                            params=("@" + hero["username"], squad["name"], squad["short"]))
+                    callback.message.chat.id,
+                    text="hero_removed_from_squad",
+                    params=("@" + hero["username"], squad["name"], squad["short"]))
             ts.bot.answer_callback_query(callback.id, "")
     elif data.startswith("QUIT_SQUAD"):
         userid = callback.from_user.id
@@ -177,10 +178,8 @@ def resolve_callbacks(callback):
         squad = hero["squad"]
         confirmation = gen_confirm_markup(userid)
         ts.send_message(
-                    callback.message.chat.id, 
-                    text="quit_squad_confirm",
-                    params=(squad["name"], squad["short"]),
-                    reply_markup=confirmation
-                    )
-    
-            
+            callback.message.chat.id,
+            text="quit_squad_confirm",
+            params=(squad["name"], squad["short"]),
+            reply_markup=confirmation
+        )

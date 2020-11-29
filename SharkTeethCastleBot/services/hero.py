@@ -24,9 +24,9 @@ class HeroService:
             raise Exception("This class is a singleton!")
         else:
             HeroService.__instance = self
-            self.db = DatabaseService.getInstance()
+            self.db = DatabaseService.get_instance()
             self.hero = self.db.heros
-            self.ts = TelegramService.getInstance()
+            self.ts = TelegramService.get_instance()
             self.cw = CwApiService.getInstance()
 
     
@@ -204,7 +204,7 @@ class HeroService:
             markup = gen_whois_markup(userid, commanderid)
             self.ts.send_message(commanderid, text=answer, params=params, reply_markup=markup)
         else:
-            self.ts.send_message(chatid, userId=commanderid, text="no_authorized")
+            self.ts.send_message(chatid, user_id=commanderid, text="no_authorized")
     
     
     def authed_hero(self, userid, username):

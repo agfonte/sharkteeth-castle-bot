@@ -23,7 +23,7 @@ class LanguageService:
             LanguageService.__instance = self
             self.es = strings_es.lang_es
             self.en = strings_en.lang_en
-            self.db = DatabaseService.getInstance()
+            self.db = DatabaseService.get_instance()
     
     def get_lang(self, userid):
         return self.db.get_lang(userid)
