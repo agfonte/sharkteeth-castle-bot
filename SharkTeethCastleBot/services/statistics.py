@@ -41,7 +41,7 @@ class StatsService:
                 commander = detail_squad["commander"]["username"]
 
                 maxplayers = list_squad.count()
-                role = AuthService.getInstance().get_role(userid)
+                role = AuthService.get_instance().get_role(userid)
                 if role[0] in ["SQUAD_LEADER", "COMMANDERS"]:
                     atk = 0
                     defs = 0

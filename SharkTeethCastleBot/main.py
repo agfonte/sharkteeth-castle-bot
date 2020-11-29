@@ -17,7 +17,7 @@ logging.getLogger("pika").propagate = False
 # BOT CORE
 bot = TelegramService.get_instance().set_bot(
     telebot.TeleBot(os.environ["HUNTER_TOKEN"], parse_mode="HTML", threaded=False))
-schedule = SchedulingService.getInstance()
+schedule = SchedulingService.get_instance()
 
 logger.info('Starting app...')
 
@@ -52,11 +52,11 @@ def start(message):
 def new_user(message):
     userid = message.from_user.id
     is_bot = message.from_user.is_bot
-    if not is_bot and not SquadService.getInstance().can_enter(userid, message.chat.id):
+    if not debug and not is_bot and not SquadService.get_instance().can_enter(userid, message.chat.id):
         if bot.bot.kick_chat_member(message.chat.id, userid):
             username = message.from_user.username
             name = message.from_user.first_name
-            squad = SquadService.getInstance().squad_info(message.chat.id)
+            squad = SquadService.get_instance().squad_info(message.chat.id)
             bot.send_message(message.chat.id, "enter_squad_forbidden",
                              params=(name, username, userid, squad["name"], squad["short"]), )
     elif not is_bot:
@@ -80,11 +80,11 @@ def commands(message):
                     HeroService.getInstance().no_pledge(message)
                 if comm == "/gearAuth":
                     bot.send_message(message.from_user.id, "auth_request")
-                    CwApiService.getInstance().authRequestGearInfo(message.from_user.id)
+                    CwApiService.getInstance().auth_request_gear_info(message.from_user.id)
                 if comm == "/reports":
                     HeroService.getInstance().reports(message.from_user.id)
                 if comm == "/add":
-                    SquadService.getInstance().add_private_to_squad(message)
+                    SquadService.get_instance().add_private_to_squad(message)
                 if comm == "/whois":
                     HeroService.getInstance().private_whois(message.from_user.id, message.text)
             else:
@@ -92,7 +92,9 @@ def commands(message):
         else:
             if comm:
                 if comm == "/create_squad":
-                    SquadService.getInstance().create_squad(message, comm)
+                    SquadService.get_instance().create_squad(message, comm)
+                if comm == "/delete_squad":
+                    SquadService.get_instance().delete_squad(message, comm)
                 if comm == "/kick" and message.reply_to_message is not None:
                     replied_msg = message.reply_to_message
                     replied_usrid = replied_msg.from_user.id
@@ -104,7 +106,7 @@ def commands(message):
                     CwApiService.getInstance().auth(message.from_user.id)
                 if comm == "/gearAuth":
                     bot.send_message(message.from_user.id, "auth_request")
-                    CwApiService.getInstance().authRequestGearInfo(message.from_user.id)
+                    CwApiService.getInstance().auth_request_gear_info(message.from_user.id)
                 if comm == "/whois" and message.reply_to_message is not None:
                     replied_msg = message.reply_to_message
                     userid = message.from_user.id
@@ -113,12 +115,11 @@ def commands(message):
                     logging.info("/whois on user: " + str(replied_usrid))
                     HeroService.getInstance().whois(replied_usrid, userid, message.chat.id)
                 if comm == "/add":
-                    SquadService.getInstance().add_to_squad_by_join(message)
+                    SquadService.get_instance().add_to_squad_by_join(message)
 
 
 @bot.bot.message_handler(func=lambda m: True)
 def update(message):
-    print(message)
     cwapi = CwApiService.getInstance()
     code = parse_code_auth(message.text)
     if code:
@@ -159,7 +160,7 @@ def process_auth_code(message, code):
     cwapi = CwApiService.getInstance()
     if " - view currently equipped gear" not in message.text:
         usrid = message.chat.id
-        if cwapi.grantToken(message.from_user.id, code) == "Ok":
+        if cwapi.grant_token(message.from_user.id, code) == "Ok":
             params = None
             if message.chat.type == "private":
                 usrid = message.from_user.id
@@ -174,7 +175,7 @@ def process_auth_code(message, code):
 
     if " - view currently equipped gear" in message.text:
         usrid = message.chat.id
-        if cwapi.grantAdditionalOperation(message.from_user.id, code) == "Ok":
+        if cwapi.grant_additional_operation(message.from_user.id, code) == "Ok":
             params = None
             if message.chat.type == "private":
                 usrid = message.from_user.id

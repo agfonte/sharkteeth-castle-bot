@@ -10,8 +10,8 @@ logging.basicConfig(level=logging.INFO)
 def resolve_callbacks(callback):
     ts = TelegramService.get_instance()
     db = DatabaseService.get_instance()
-    sett = Settings.getInstance()
-    lang = LanguageService.getInstance()
+    sett = Settings.get_instance()
+    lang = LanguageService.get_instance()
     hero = HeroService.getInstance()
     data = callback.data
     user = callback.from_user.id

@@ -7,9 +7,9 @@ class Settings:
     __instance = None
 
     @staticmethod
-    def getInstance():
+    def get_instance():
         """ Static access method. """
-        if Settings.__instance == None:
+        if Settings.__instance is None:
             Settings(bot, lang_service)
         return Settings.__instance
 
@@ -20,7 +20,7 @@ class Settings:
         else:
             Settings.__instance = self
             self.db = DatabaseService.get_instance()
-            self.lang = LanguageService().getInstance()
+            self.lang = LanguageService().get_instance()
             self.cwuser = None
             self.cwpass = None
 
@@ -40,6 +40,6 @@ class Settings:
         elif lang == "EN":
             ts.send_message(user, text="lang_setted", reply_markup=gen_main_keyboard(user))
 
-    def setEnv(self, user, passw):
+    def set_env(self, user, passw):
         self.cwuser = user
         self.cwpass = passw

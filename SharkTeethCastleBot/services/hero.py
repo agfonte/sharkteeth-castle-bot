@@ -199,7 +199,7 @@ class HeroService:
                 return self.ts.send_message(userid, "whois_wrong_parameters")
             
     def whois(self, userid, commanderid, chatid):
-        if AuthService.getInstance().can_see_profile(userid, commanderid):
+        if AuthService.get_instance().can_see_profile(userid, commanderid):
             answer, params, markup = self.me(userid)
             markup = gen_whois_markup(userid, commanderid)
             self.ts.send_message(commanderid, text=answer, params=params, reply_markup=markup)
@@ -208,13 +208,13 @@ class HeroService:
     
     
     def authed_hero(self, userid, username):
-        basicprofile = self.cw.requestProfile(userid)
+        basicprofile = self.cw.request_profile(userid)
         self.db.insert_hero(userid, username, basicprofile)
         #requestGear = self.cw.requestGearInfo(userid)
         
     
     def authed_gear(self, userid, username):
-        requestGear = self.cw.requestGearInfo(userid)
+        requestGear = self.cw.request_gear_info(userid)
         response = self.db.insert_gear(userid, username, requestGear)
         
     def proccess_battle_report(self, userid, text, date):

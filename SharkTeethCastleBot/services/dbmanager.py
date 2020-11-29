@@ -114,7 +114,7 @@ class DatabaseService:
         if h and "last_update_gear" in h.keys():
             last = h["last_update_gear"]
             if (now - last).seconds / 60 > 1:
-                gear = cw.requestGearInfo(userid)
+                gear = cw.request_gear_info(userid)
                 if gear != "FAIL" and gear is not None:
                     print(gear)
                     self.heros.update_one({"_id": userid}, {"$set": {
@@ -138,7 +138,7 @@ class DatabaseService:
         if h:
             last = h["last_update"]
             if (now - last).seconds / 60 > 1:
-                profile = cw.requestProfile(userid)
+                profile = cw.request_profile(userid)
                 if profile and username:
                     response = self.heros.find_one_and_update({"_id": userid}, {"$set": {
                         "profile": profile["profile"],

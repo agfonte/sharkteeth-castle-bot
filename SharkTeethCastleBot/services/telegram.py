@@ -23,7 +23,7 @@ class TelegramService:
         else:
             TelegramService.__instance = self
             self.bot = None
-            self.lang = LanguageService.getInstance()
+            self.lang = LanguageService.get_instance()
 
     def set_bot(self, bot):
         self.bot = bot

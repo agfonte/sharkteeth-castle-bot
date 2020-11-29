@@ -44,7 +44,8 @@ commands = {
     "ban": "/ban",
     "unban": "/unban",
     "reports": "/reports",
-    "add": "/add"
+    "add": "/add",
+    "delete_squad": "/delete_squad"
 }
 
 private_commands = {

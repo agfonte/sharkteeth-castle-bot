@@ -4,23 +4,24 @@ from SharkTeethCastleBot.services import DatabaseService, TelegramService
 
 class ActionService:
     __instance = None
-    @staticmethod 
-    def getInstance():
+
+    @staticmethod
+    def get_instance():
         """ Static access method. """
-        if ActionService.__instance == None:
+        if ActionService.__instance is None:
             ActionService()
         return ActionService.__instance
+
     def __init__(self):
         """ Virtually private constructor. """
-        if ActionService.__instance != None:
+        if ActionService.__instance is not None:
             raise Exception("This class is a singleton!")
         else:
             ActionService.__instance = self
             self.db = DatabaseService.get_instance()
             self.bot = TelegramService.get_instance()
             self.OK = "Ok"
-            
-        
+
     def resolve(self, response):
         action = response["action"]
         result = response["result"]
@@ -48,7 +49,7 @@ class ActionService:
             return self.action_guild_info(result, payload)
         if action == "wantToBuy":
             return self.action_want_to_buy(result, payload)
-        
+
     def action_create_auth_code(self, result, payload):
         return result
 
@@ -58,22 +59,22 @@ class ActionService:
                 self.db.insert_authed_user(payload["userId"], payload["id"], payload["token"])
                 logging.info("Inserted: " + str(payload["userId"]))
             except:
-                logging.error("Error in: action_grant_token with params(" + str(payload)+")")
+                logging.error("Error in: action_grant_token with params(" + str(payload) + ")")
         else:
             userid = payload["userId"]
             self.bot.send_message(userid, "invalid_token")
         return result
-    
+
     def action_auth_additional_operation(self, response):
         result = response["result"]
         payload = response["payload"]
         if result == self.OK:
             auth = self.db.auth
-            auth.update({"_id": payload["userId"]}, {"$set":{
+            auth.update({"_id": payload["userId"]}, {"$set": {
                 "uuid": response["uuid"]
             }})
         return result
-    
+
     def action_grant_additional_operation(self, result, payload):
         if result == self.OK:
             print(result, payload)
@@ -82,7 +83,6 @@ class ActionService:
             userid = payload["userId"]
             self.bot.send_message(userid, "invalid_token")
         return result
-
 
     def action_view_craftbook(self, result, payload):
         return result
@@ -96,17 +96,17 @@ class ActionService:
 
     def action_request_basic_info(self, result, payload):
         print(result, payload)
-    
+
     def action_request_gear_info(self, result, payload):
         if result == self.OK:
             return payload
         else:
             userid = payload["userId"]
             self.bot.send_message(userid, "no_gear_auth")
-    
+
     def action_request_stock(self, result, payload):
         print(result, payload)
-    
+
     def action_guild_info(self, result, payload):
         print(result, payload)
 

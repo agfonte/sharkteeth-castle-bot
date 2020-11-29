@@ -25,7 +25,7 @@ def split_command(text, com):
 
 
 def all_buttons(userid):
-    index = 0 if LanguageService.getInstance().get_lang(userid) == "EN" else 1
+    index = 0 if LanguageService.get_instance().get_lang(userid) == "EN" else 1
     lang_buttons = {}
     for key, value in buttons.items():
         lang_buttons[key] = value[index]
