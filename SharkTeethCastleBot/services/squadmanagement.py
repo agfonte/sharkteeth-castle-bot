@@ -1,8 +1,8 @@
-import os, pymongo, logging
+import logging
+
+from .auth import AuthService
 from .dbmanager import DatabaseService
 from .telegram import TelegramService
-from .lang import LanguageService
-from .auth import AuthService, Permissions
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger("[database]")

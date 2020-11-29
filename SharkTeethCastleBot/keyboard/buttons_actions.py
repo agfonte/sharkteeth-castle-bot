@@ -35,7 +35,7 @@ def button_language(userid):
 def button_me(userid):
     # logger.info(f'Usando user id {userid} para obtener el hero')
     try:
-        answer, params, markup = HeroService.getInstance().me(userid)
+        answer, params, markup = HeroService.get_instance().me(userid)
         if answer:
             # logger.info(f'Usando user id {userid} se obtuvo como respuesta {answer}')
             TelegramService.get_instance().send_message(userid, text=answer, params=params, reply_markup=markup)

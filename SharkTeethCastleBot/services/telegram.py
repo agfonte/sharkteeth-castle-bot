@@ -1,7 +1,7 @@
+from telebot.apihelper import ApiException
+from markdown_strings import esc_format
 from .lang import LanguageService
 import logging
-from markdown_strings import esc_format
-
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger("[telegram_service]")
 
@@ -90,8 +90,8 @@ class TelegramService:
                                            message_id=message_id,
                                            text=self.lang.get_value(user_id, text),
                                            parse_mode=parse_mode)
-        except:
-            logging.error("ERROR EDITING MESSAGE: ", exc_info=True)
+        except ApiException as ex:
+            logging.error("Ignoring error")
 
     def pin_chat_message(self, chatid, messageid):
         self.bot.pin_chat_message(chatid, messageid)

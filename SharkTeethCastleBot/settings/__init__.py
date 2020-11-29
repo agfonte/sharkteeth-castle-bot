@@ -1,5 +1,7 @@
-from SharkTeethCastleBot.settings.settings import Settings
-import os, logging
+import logging
+import os
+
+from .settings import Settings
 
 settings = Settings().get_instance()
 logger = logging.getLogger("[settings]")

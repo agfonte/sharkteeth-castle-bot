@@ -1,6 +1,6 @@
-from SharkTeethCastleBot.services import DatabaseService, LanguageService, TelegramService
-from SharkTeethCastleBot.keyboard.botmarkup import gen_bot_settings, gen_main_soldier_keyboard, gen_lang_settings, \
+from ..keyboard.botmarkup import gen_lang_settings, \
     gen_main_keyboard
+from ..services import DatabaseService, LanguageService, TelegramService
 
 
 class Settings:
@@ -10,7 +10,7 @@ class Settings:
     def get_instance():
         """ Static access method. """
         if Settings.__instance is None:
-            Settings(bot, lang_service)
+            Settings()
         return Settings.__instance
 
     def __init__(self):
@@ -23,17 +23,18 @@ class Settings:
             self.lang = LanguageService().get_instance()
             self.cwuser = None
             self.cwpass = None
+            self.telegram = TelegramService.get_instance()
 
     def select_language(self, userid):
-        TelegramService.get_instance().send_message(userid, "select_lang", reply_markup=gen_lang_settings(),
-                                                    parse_mode="Markdown")
+        self.telegram.send_message(userid, "select_lang", reply_markup=gen_lang_settings(),
+                                   parse_mode="Markdown")
 
     def proccess_callback(self, call):
         heros = self.db.herosettings
         user = call.from_user.id
         lang = call.data.split("LANG_")[1]
         ts = TelegramService.get_instance()
-        ts.bot.answer_callback_query(call.id, "Ok")
+        self.telegram.bot.answer_callback_query(call.id, "Ok")
         self.db.update_lang(user, lang)
         if lang == "ES":
             ts.send_message(user, text="lang_setted", reply_markup=gen_main_keyboard(user))

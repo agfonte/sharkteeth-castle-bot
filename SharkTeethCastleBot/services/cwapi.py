@@ -1,5 +1,5 @@
 import os, threading, pika, json, logging, time, SharkTeethCastleBot.services
-from SharkTeethCastleBot.settings import Settings
+from ..settings import Settings
 from pika.exceptions import ChannelWrongStateError
 
 logger = logging.getLogger("[cwapi_service]")

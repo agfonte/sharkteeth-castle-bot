@@ -16,7 +16,7 @@ logger = logging.getLogger("[sharkteeth_core]")
 logging.getLogger("pika").propagate = False
 # BOT CORE
 bot = TelegramService.get_instance().set_bot(
-    telebot.TeleBot(os.environ["HUNTER_TOKEN"], parse_mode="HTML", threaded=False))
+    telebot.TeleBot(os.environ["HUNTER_TOKEN"], threaded=False))
 schedule = SchedulingService.get_instance()
 
 logger.info('Starting app...')
@@ -28,9 +28,9 @@ try:
     if debug:
         logging.warning("DEBUG MODE: TRUE")
     else:
-        logging.warn("DEBUG MODE: FALSE")
+        logging.warning("DEBUG MODE: FALSE")
 except:
-    logging.warn("DEBUG MODE: FALSE")
+    logging.warning("DEBUG MODE: FALSE")
 
 
 @bot.bot.message_handler(commands=["start"])
@@ -38,7 +38,7 @@ def start(message):
     userid = message.from_user.id
     username = message.from_user.first_name
     usertag = message.from_user.username
-    hero = HeroService.getInstance().exists(userid)
+    hero = HeroService.get_instance().exists(userid)
     if hero:
         bot.send_message(message.from_user.id, "welcome", reply_markup=gen_main_keyboard(message.from_user.id))
     else:
@@ -77,16 +77,16 @@ def commands(message):
                 if comm == "/first_steps":
                     bot.send_message(message.from_user.id, "first_steps", reply_markup=gen_main_keyboard(message.from_user.id))
                 if comm == "/no_pledge":
-                    HeroService.getInstance().no_pledge(message)
+                    HeroService.get_instance().no_pledge(message)
                 if comm == "/gearAuth":
                     bot.send_message(message.from_user.id, "auth_request")
                     CwApiService.getInstance().auth_request_gear_info(message.from_user.id)
                 if comm == "/reports":
-                    HeroService.getInstance().reports(message.from_user.id)
+                    HeroService.get_instance().reports(message.from_user.id)
                 if comm == "/add":
                     SquadService.get_instance().add_private_to_squad(message)
                 if comm == "/whois":
-                    HeroService.getInstance().private_whois(message.from_user.id, message.text)
+                    HeroService.get_instance().private_whois(message.from_user.id, message.text)
             else:
                 pass
         else:
@@ -113,7 +113,7 @@ def commands(message):
                     replied_usrid = replied_msg.from_user.id
                     replied_usrname = replied_msg.from_user.username
                     logging.info("/whois on user: " + str(replied_usrid))
-                    HeroService.getInstance().whois(replied_usrid, userid, message.chat.id)
+                    HeroService.get_instance().whois(replied_usrid, userid, message.chat.id)
                 if comm == "/add":
                     SquadService.get_instance().add_to_squad_by_join(message)
 
@@ -126,11 +126,11 @@ def update(message):
         return process_auth_code(message, code)
 
     if is_battle_report(message.text):
-        return HeroService.getInstance().proccess_battle_report(message.from_user.id, message.text,
+        return HeroService.get_instance().process_battle_report(message.from_user.id, message.text,
                                                                 message.forward_date)
     pledge = check_if_pledge(message.text)
     if pledge:
-        return HeroService.getInstance().pledge(message, pledge)
+        return HeroService.get_instance().pledge(message, pledge)
 
     if message.chat.type == "private" and message.from_user.username is None:
         return bot.reply_to(message, "no_username")
@@ -169,7 +169,7 @@ def process_auth_code(message, code):
             else:
                 params = (message.from_user.username)
                 bot.send_message(usrid, "auth_completed_public", params=params)
-            HeroService.getInstance().authed_hero(usrid, message.from_user.username)
+            HeroService.get_instance().authed_hero(usrid, message.from_user.username)
         else:
             bot.send_message(usrid, "try_later")
 
@@ -183,7 +183,7 @@ def process_auth_code(message, code):
             else:
                 params = (message.from_user.username)
                 TelegramService.get_instance().send_message(usrid, "auth_completed_gear_public", params=params)
-            HeroService.getInstance().authed_gear(usrid, message.from_user.username)
+            HeroService.get_instance().authed_gear(usrid, message.from_user.username)
         else:
             bot.send_message(usrid, "try_later")
 

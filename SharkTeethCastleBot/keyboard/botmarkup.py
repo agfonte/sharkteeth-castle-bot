@@ -1,6 +1,4 @@
 from telebot.types import InlineKeyboardMarkup, InlineKeyboardButton, ReplyKeyboardMarkup, KeyboardButton
-
-from SharkTeethCastleBot.services import LanguageService
 from SharkTeethCastleBot.utils.constants import buttons, emojis
 
 
@@ -15,7 +13,7 @@ def gen_main_keyboard(userid):
     auth = services.AuthService.get_instance().get_role(userid)
     print("Keyboard " + auth[0])
     if auth is None:
-        return NonesetEnv
+        return None
     if auth[0] == services.Permissions.COMMANDER:
         return gen_main_commander_keyboard(userid)
     if auth[0] == services.Permissions.SQUAD_LEADER:
@@ -191,12 +189,13 @@ def gen_confirm_markup(userid):
 
 
 def gen_tops_keyboard(userid):
+    import SharkTeethCastleBot.services as services
     markup = ReplyKeyboardMarkup(resize_keyboard=True)
     atk = KeyboardButton(emojis["cross_swords"])
     defense = KeyboardButton(emojis["shield"])
     exp = KeyboardButton(emojis["fire"])
     reports = KeyboardButton(emojis["star_medal"])
-    back = KeyboardButton(emojis["left_arrow"] + LanguageService.get_instance().get_value(userid, "back"))
+    back = KeyboardButton(emojis["left_arrow"] + services.LanguageService.get_instance().get_value(userid, "back"))
     markup.row(atk, defense, exp)
     markup.row(reports, back)
     return markup

@@ -12,7 +12,7 @@ def resolve_callbacks(callback):
     db = DatabaseService.get_instance()
     sett = Settings.get_instance()
     lang = LanguageService.get_instance()
-    hero = HeroService.getInstance()
+    hero = HeroService.get_instance()
     data = callback.data
     user = callback.from_user.id
 

@@ -9,7 +9,7 @@ from .hero import HeroService
 from .scheduling import SchedulingService
 from .statistics import StatsService
 
-DatabaseService =  DatabaseService
+DatabaseService = DatabaseService
 
 LanguageService = LanguageService
 
