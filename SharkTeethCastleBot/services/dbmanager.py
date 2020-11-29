@@ -1,6 +1,6 @@
 from pymongo import collection
 import os, pymongo, logging
-import services
+
 from datetime import datetime
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger("[database]")
@@ -38,6 +38,7 @@ class DatabaseService:
       self.auth.update({"_id": userid}, {"cwtoken": token})
       
    def insert_authed_user(self, userid, cwid, token):
+      import SharkTeethCastleBot.services as services
       if self.auth.find_one({"_id":userid}) == None:
          self.auth.insert_one({
             "_id": userid,
@@ -102,6 +103,7 @@ class DatabaseService:
             }})
       
    def update_gear(self, userid):
+      import SharkTeethCastleBot.services as services
       h =  self.heros.find_one({"_id": userid})
       now = datetime.now()
       cw = services.CwApiService.getInstance()
@@ -125,6 +127,7 @@ class DatabaseService:
          return "gear_not_auth"
       
    def update_hero(self, userid, username=None):
+      import SharkTeethCastleBot.services as services
       h =  self.heros.find_one({"_id": userid})
       now = datetime.now()
       cw = services.CwApiService.getInstance()

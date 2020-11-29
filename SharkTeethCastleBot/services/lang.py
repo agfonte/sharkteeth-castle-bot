@@ -1,6 +1,6 @@
-from services import DatabaseService
+from SharkTeethCastleBot.services import DatabaseService
 import logging
-from languages import strings_en, strings_es
+from SharkTeethCastleBot.languages import strings_en, strings_es
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger("[language_service]")

@@ -1,5 +1,5 @@
-from services import TelegramService, DatabaseService, LanguageService, HeroService
-from settings import Settings
+from SharkTeethCastleBot.services import TelegramService, DatabaseService, LanguageService, HeroService
+from SharkTeethCastleBot.settings import Settings
 from .botmarkup import gen_add_to_squad, gen_whois_markup, gen_confirm_markup
 import logging
 
@@ -18,7 +18,7 @@ def resolve_callbacks(callback):
     username = callback.from_user.username
     if data.startswith("LANG_"):
         return sett.proccess_callback(callback)
-    elif data.startswith("HERO_"):
+    elif data.startswith("HERO_"):        
         res = False
         if data == "HERO_GEAR_UPDATE":
             res = db.update_gear(user)
@@ -96,12 +96,17 @@ def resolve_callbacks(callback):
         squadid, userid = data.split("SELECT_SQUAD_")[1].split("_")
         squadid = int(squadid)
         userid = int(userid)
-        hero = db.heros.find_one({"_id": userid})
+        hero = db.heros.find_one({"_id": userid})        
         if hero["squad"]:
             squad = hero["squad"]
             oldsquadid = squad["_id"]
-            ts.bot.kick_chat_member(squadid, userid)
-            ts.send_message(userid, text="you_removed_from_squad", params=(squad["name"], squad["short"],))
+            print(f"Id de chat {oldsquadid}, Id de usuario {userid}")
+            try:
+                if(ts.bot.kick_chat_member(squadid, userid)):
+                    ts.send_message(userid, text="you_removed_from_squad", params=(squad["name"], squad["short"],))
+            except Exception as e:
+                # USER NO PARTICIPANT CAN HAPPEN
+                logger.error(e)
         squad = db.squad.find_one({"_id": squadid})
         db.heros.update_one({"_id":userid}, {
             "$set":{
@@ -113,7 +118,13 @@ def resolve_callbacks(callback):
             }
         })
         link = db.squad.find_one({"_id": squadid}, {"link": 1})["link"]
-        ts.bot.unban_chat_member(squad["_id"], userid)
+        
+        try:
+            ts.bot.unban_chat_member(squad["_id"], userid)
+        except Exception as e:
+            # USER NO PARTICIPANT CAN HAPPEN
+            logger.error(e)
+
         ts.send_message(
                     callback.message.chat.id, 
                     text="hero_added_to_squad",

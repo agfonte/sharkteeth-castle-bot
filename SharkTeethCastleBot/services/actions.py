@@ -1,5 +1,5 @@
 import logging
-from services import DatabaseService, TelegramService
+from SharkTeethCastleBot.services import DatabaseService, TelegramService
 
 
 class ActionService:
